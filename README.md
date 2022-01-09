@@ -119,9 +119,10 @@ parquet")
 ```
 val movies11 = spark.read.orc("<path>/book/chapter4/data/movies/movies.orc")
 ```
-- Create Dataframes from jdbc "\n"
-First, connect MySQL ot Spark
+- Create Dataframes from jdbc
 ```
+// First, connect MySQL ot Spark
+
 import java.sql.DriverManager
 val connectionURL = "jdbc:mysql://localhost:3306/<table>?user=<username>
 &password=<password>"
@@ -129,8 +130,9 @@ val connection = DriverManager.getConnection(connectionURL)
 connection.isClosed()
 connection close()
 ```
-Reading Data from a Table in MySQL Server
 ```
+//Reading Data from a Table in MySQL Server
+
 val mysqlURL= "jdbc:mysql://localhost:3306/sakila"
 val filmDF = spark.read.format("jdbc").option("driver", "com.mysql.jdbc.
 Driver")
@@ -139,7 +141,6 @@ Driver")
                                       .option("user", "<username>")
                                       .option("password","<password>")
                                       .load()
-
 ```
 
 
