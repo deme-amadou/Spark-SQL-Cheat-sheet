@@ -202,7 +202,7 @@ movies.filter('produced_year < 2000)
 movies.where('produced_year > 2000)
 movies.filter('produced_year >= 2000)
 movies.where('produced_year >= 2000)
-// equality comparison require 3 equal signs
+// equality comparison requires 3 equal signs
 movies.filter('produced_year === 2000).show(5)
 // inequality comparison uses an interesting looking operator =!=
 movies.select("movie_title","produced_year").filter('produced_year =!=2000).show(5)
@@ -211,9 +211,28 @@ movies.filter('produced_year >= 2000 && length('movie_title) < 5).show(5)
 // the other way of accomplishing the same result is by calling the filter function two times
 movies.filter('produced_year >= 2000).filter(length('movie_title) < 5).show(5)
 ```
-
-
-
+##### distinct, dropDuplicates
+These two transformations have identical behavior. However, dropDuplicates allows you to control which columns should be used in deduplication logic. If none is specified, the deduplication logic will use all the columns in the DataFrame.
+- Using distinct and dropDuplicates to Achieve the Same Goal
+```
+movies.select("movie_title").distinct.selectExpr("count(movie_title) as
+movies").show
+movies.dropDuplicates("movie_title").selectExpr("count(movie_title) as
+movies").show
+```
+##### sort(columns), orderBy(columns)
+Both of these transformations have the same semantics. The orderBy transformation is more relational than the other one. By default, the sorting is in ascending order, and it is fairly easy to change it to descending. When specifying more than one column, it is possible to have a different order for each of the columns.
+- Sorting the DataFrame in Ascending and Descending Order
+```
+val movieTitles = movies.dropDuplicates("movie_title")
+                        .selectExpr("movie_title", "length(movie_title) as
+			 title_length", , "produced_year")
+movieTitles.sort('title_length).show(5)
+// sorting in descending order
+movieTitles.orderBy('title_length.desc).show(5)
+// sorting by two columns in different orders
+movieTitles.orderBy('title_length.desc, 'produced_year).show(5)
+```
 
 
 
