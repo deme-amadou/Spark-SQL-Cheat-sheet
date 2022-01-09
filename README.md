@@ -119,7 +119,7 @@ parquet")
 ```
 val movies11 = spark.read.orc("<path>/book/chapter4/data/movies/movies.orc")
 ```
-- Create Dataframes from jdbc
+- Create Dataframes from jdbc "\n"
 First, connect MySQL ot Spark
 ```
 import java.sql.DriverManager
