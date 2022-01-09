@@ -104,8 +104,8 @@ val movies6 = spark.read.option("inferSchema","true").schema(movieSchema2)
                               .json("<path>/book/chapter4/data/movies/movies.json")
 ```
 - Reading a Parquet File in Spark
-Parquet is the default format, so we don't need to specify the format when reading
 ```
+Parquet is the default format, so don't need to specify the format when reading
 val movies9 = spark.read.load("<path>/book/chapter4/data/movies/movies.
 parquet")           
 ```
