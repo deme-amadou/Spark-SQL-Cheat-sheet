@@ -195,8 +195,22 @@ show(5)
 movies.selectExpr("count(distinct(movie_title)) as movies","count(distinct(actor_name)) as actors").show
 ```
 ##### filler(condition), where(condition)
-
-
+This transformation is a fairly straightforward one to understand. It is used to filter out the rows that don’t meet the given condition, in other words, when the condition evaluates to false. A different way of looking at the behavior of the filter transformation is that it returns only the rows that meet the specified condition. Both the filter and where transformations have the same behavior, so pick the one you are most comfortable with. The latter one is just a bit more relational than the former.
+- Filter Rows with Logical Comparison Functions in the Column Class
+```
+movies.filter('produced_year < 2000)
+movies.where('produced_year > 2000)
+movies.filter('produced_year >= 2000)
+movies.where('produced_year >= 2000)
+// equality comparison require 3 equal signs
+movies.filter('produced_year === 2000).show(5)
+// inequality comparison uses an interesting looking operator =!=
+movies.select("movie_title","produced_year").filter('produced_year =!=2000).show(5)
+// to combine one or more comparison expressions, we will use either the OR and AND expression operator
+movies.filter('produced_year >= 2000 && length('movie_title) < 5).show(5)
+// the other way of accomplishing the same result is by calling the filter function two times
+movies.filter('produced_year >= 2000).filter(length('movie_title) < 5).show(5)
+```
 
 
 
