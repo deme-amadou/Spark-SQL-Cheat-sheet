@@ -146,21 +146,55 @@ Driver")
 
 
 
+### Working with Structured Operations
+Unlike the RDD operations, the structured operations are designed to be more relational, meaning these operations mirror the kind of expressions you can do with SQL, such as projection, filtering, transforming, joining, and so on. Similar to RDD operations, the structured operations are divided into two categories: transformation and action. The semantics of the structured transformations and actions are identical to the ones in RDDs. In other words, structured transformations are lazily evaluated, and structured actions are eagerly evaluated.
 
+#### Working with Columns
 
+- Different Ways of Referring to a Column
+```
+import org.apache.spark.sql.functions._
+val kvDF = Seq((1,2),(2,3)).toDF("key","value")
+// to display column names in a DataFrame, we can call the columns function
+kvDF.columns
+Array[String] = Array(key, value)
+kvDF.select("key")
+kvDF.select(col("key"))
+kvDF.select(column("key"))
+kvDF.select($"key")
+kvDF.select('key)
+// using the col function of DataFrame
+kvDF.select(kvDF.col("key"))
+kvDF.select('key, 'key > 1).show
+```
+#### Working with Structured Transformations
+- Creating the movies Dataframe from a Parquet file
+```
+val movies = spark.read.parquet("<path>/chapter4/data/movies/movies.parquet")
+```
+##### select(columns)
+This transformation is commonly used to perform projection, meaning selecting all
+or a subset of columns from a DataFrame. During the selection, each column can be transformed via a column expression. There are two variations of this transformation. One takes the column as a string, and the other takes columns as the Column class. This transformation does not permit you to mix the column type when using one of these two variations.
+- Two Variations of the select Transformation
+```
+movies.select("movie_title","produced_year").show(5)
 
-
-
-
-
-
-
-
-
-
-
-
-
+// using a column expression to transform year to decade
+movies.select('movie_title,('produced_year - ('produced_year % 10)).
+as("produced_decade")).show(5)
+```
+##### selectExpr(expressions)
+This transformation is a variant of the select transformation. The one big difference is that it accepts one or more SQL expressions, rather than columns. However, both are essentially performing the same projection task. SQL expressions are powerful and flexible constructs to allow you to express column transformation logic in a natural way, just like the way you think. You can express SQL expressions in a string format, and Spark will parse them into a logical tree so they will be evaluated in the right order.
+- Adding the decade Column to the movies DataFrame Using a SQL Expression
+```
+movies.selectExpr("*","(produced_year - (produced_year % 10)) as decade").
+show(5)
+```
+- Using a SQL Expression and Built-in Functions
+```
+movies.selectExpr("count(distinct(movie_title)) as movies","count(distinct(actor_name)) as actors").show
+```
+##### filler(condition), where(condition)
 
 
 
