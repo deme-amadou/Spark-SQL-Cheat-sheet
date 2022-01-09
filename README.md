@@ -53,11 +53,34 @@ val moviesDF = movies.toDF("actor", "title", "year")
 ```
 
 #### Creating DataFrames from Data Sources
-
-
-
-
-
+Out of the box, Spark SQL supports six built-in data sources, where each data source is
+mapped to a data format. The data source layer in the Spark SQL module is designed to
+be extensible, so custom data sources can be easily integrated into the DataFrame APIs.
+There are hundreds of custom data sources written by the Spark community, and it is not
+too difficult to implement them.
+The two main classes in Spark SQL for reading and writing data are DataFrameReader and DataFrameWriter, respectively.
+An instance of the DataFrameReader class is available as the read variable of the SparkSession class.
+- Common Pattern for Interacting with DataFrameReader
+```
+spark.read.format(...).option("key", value").schema(...).load()
+```
+- Specifying the Data Source Format
+```
+spark.read.json("<path>")
+spark.read.format("json")
+spark.read.parquet("<path>")
+spark.read.format("parquet")
+spark.read.jdbc
+spark.read.format("jdbc")
+spark.read.orc("<path>")
+spark.read.format("orc")
+spark.read.csv("<path>")
+spark.read.format("csv")
+spark.read.text("<path>")
+spark.read.format("text")
+// custom data source – fully qualifed package name
+spark.read.format("org.example.mysource")
+```
 
 
 
