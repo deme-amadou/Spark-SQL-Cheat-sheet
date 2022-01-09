@@ -81,6 +81,51 @@ spark.read.format("text")
 // custom data source – fully qualifed package name
 spark.read.format("org.example.mysource")
 ```
+- Reading the README.md File As a Text File from a Spark Shell
+```
+val textFile = spark.read.text("README.md")
+```
+- Reading CSV Files with Various Options
+```
+val movies = spark.read.option("header","true").csv("<path>/book/chapter4/data/movies.csv")
+```
+- Various Examples of Reading a JSON File
+```
+val movies5 = spark.read.json("<path>/book/chapter4/data/movies/movies.json")
+```
+```
+Specify a schema to override the Spark's inferring schema.
+producted_year is specified as integer type
+import org.apache.spark.sql.types._
+val movieSchema2 = StructType(Array(StructField("actor_name", StringType, true),
+                             StructField("movie_title", StringType, true),
+                             StructField("produced_year", IntegerType, true)))
+val movies6 = spark.read.option("inferSchema","true").schema(movieSchema2)
+                              .json("<path>/book/chapter4/data/movies/movies.json")
+```
+                   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
