@@ -103,18 +103,44 @@ val movieSchema2 = StructType(Array(StructField("actor_name", StringType, true),
 val movies6 = spark.read.option("inferSchema","true").schema(movieSchema2)
                               .json("<path>/book/chapter4/data/movies/movies.json")
 ```
-                   
+- Reading a Parquet File in Spark
+Parquet is the default format, so we don't need to specify the format when reading
+```
+val movies9 = spark.read.load("<path>/book/chapter4/data/movies/movies.
+parquet")           
+```
+If we want to be more explicit, we can specify the path to the parquet
+function
+```
+val movies10 = spark.read.parquet("<path>/book/chapter4/data/movies/movies.
+parquet")
+```
+- Reading an ORC File in Spark
+```
+val movies11 = spark.read.orc("<path>/book/chapter4/data/movies/movies.orc")
+```
+- Create Dataframes from jdbc
+* We must first connect MySQL ot Spark
+```
+import java.sql.DriverManager
+val connectionURL = "jdbc:mysql://localhost:3306/<table>?user=<username>
+&password=<password>"
+val connection = DriverManager.getConnection(connectionURL)
+connection.isClosed()
+connection close()
+```
+* Reading Data from a Table in MySQL Server
+```
+val mysqlURL= "jdbc:mysql://localhost:3306/sakila"
+val filmDF = spark.read.format("jdbc").option("driver", "com.mysql.jdbc.
+Driver")
+                                      .option("url", mysqlURL)
+                                      .option("dbtable", "film")
+                                      .option("user", "<username>")
+                                      .option("password","<password>")
+                                      .load()
 
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
