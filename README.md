@@ -366,9 +366,9 @@ Array[Movie] = Array(Movie(McClure, Marc (I),Coach Carter,2005), Movie(McClure, 
 ```
 ### Running SQL in Spark
 Spark provides a few different ways to run SQL.
-• Spark SQL CLI (./bin/spark-sql)
-• JDBC/ODBC server
-• Programmatically in Spark applications
+- Spark SQL CLI (./bin/spark-sql)
+- JDBC/ODBC server
+- Programmatically in Spark applications
 
 
 
