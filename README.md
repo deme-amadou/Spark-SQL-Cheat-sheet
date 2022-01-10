@@ -285,11 +285,34 @@ movies.sample(false, 0.0003).show(3)
 // sample with replacement, a fraction and a seed
 movies.sample(true, 0.0003, 123456).show(3)
 ```
+##### randomSplit(weights)
+This transformation is commonly used during the process of preparing the data to train machine learning models. Unlike the previous transformations, this one returns one or more DataFrames. The number of DataFrames it returns is based on the number of weights you specify. If the provided set of weights don’t add up to 1, then they will be
+normalized accordingly to add up to 1.
+- Using randomSplit to split the movies DataFrames into Three Parts
+```
+// the weights need to be an Array
+val smallerMovieDFs = movies.randomSplit(Array(0.6, 0.3, 0.1))
+```
+#### Working with Missing or Bad Data
+- Dropping Rows with Missing Data
+```
+// dropping rows that have missing data in any column
+// both of the lines below will achieve the same purpose
+badMoviesDF.na.drop().show
+badMoviesDF.na.drop("any").show
 
+// drop rows that have missing data in every single column
+badMoviesDF.na.drop("all").show
 
-
-
-
+// drops rows when column actor_name has missing data
+badMoviesDF.na.drop(Array("actor_name")).show
+```
+##### describe(columnNames)
+- Use the describe Transformation to Show Statistics for the produced_year Column
+```
+movies.describe("produced_year").show
+```
+#### Working with Structured Actions
 
 
 
