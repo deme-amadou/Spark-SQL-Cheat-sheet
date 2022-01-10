@@ -456,24 +456,69 @@ spark.catalog.cacheTable("num_df")
 // force the persistence to happen by taking the count action
 numDF.count
 ```
+## Spark SQL (Advanced)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### Aggragation Functions
+In Spark, all aggregations are done via functions. The aggregation functions are designed to perform aggregation on a set of rows, whether that set of rows consists of all the rows or a subgroup of rows in a DataFrame.
+#### count(col)
+Counting is a commonly used aggregation to find out the number of items in a group.
+- Computing the Count for Different Columns in the flight_summary DataFrame
+```
+flight_summary.select(count("origin_airport"), count("dest_airport").as("dest_count")).show
+```
+#### countDistinct(col)
+This function does what it sounds like. It counts only the unique items per group.
+- Counting Unique Items in a Group
+```
+flight_summary.select(countDistinct("origin_airport"), countDistinct("dest_
+airport"), count("*")).show
+```
+#### approx_count_distinct (col, max_estimated_error=0.05)
+Counting the exact number of unique items in each group in a large dataset is an expensive and time-consuming operation. In some use cases, it is sufficient to have an approximate unique count. One of those use cases is in the online advertising business where there are hundreds of millions of ad impressions per hour and there is a need to generate a report to show the number of unique visitors per certain type of member segment. Approximating a count of distinct items is a well-known problem in the computer science field, and it is also known as the cardinality estimation problem.
+- Counting Unique Items in a Group
+```
+// let's do the counting on the "count" colum of flight_summary DataFrame.  
+// the default estimation error is 0.05 (5%)
+flight_summary.select(count("count"),countDistinct("count"), approx_count_
+distinct("count", 0.05)).show
+```
+#### min(col), max(col)
+- Getting the Minimum and Maximum Values of the count Column
+```
+flight_summary.select(min("count"), max("count")).show
+```
+#### sum(col)
+This function computes the sum of the values in a numeric column.
+- Using the sum Function to Sum Up the count Values
+```
+flight_summary.select(sum("count")).show
+```
+#### sumDistinct(col)
+This function does what it sounds like. It sums up only the distinct values of a numeric column.
+- Using the sumDistinct Function to Sum Up the Distinct count Values
+```
+flight_summary.select(sumDistinct("count")).show
+```
+#### avg(col)
+This function calculates the average value of a numeric column. This convenient function simply takes the total and divides it by the number of items.
+- Computing the Average Value of the count Column Using Two Different Ways
+```
+flight_summary.select(avg("count"), (sum("count") / count("count"))).show
+```
+#### skewness(col), kurtosis(col)
+In the field of statistics, the distribution of the values in a dataset tells a lot of stories behind the dataset. Skewness is a measure of the symmetry of the value distribution in a dataset.
+Kurtosis is a measure of the shape of the distribution curve, whether the curve is normal, flat, or pointy. Positive kurtosis indicates the curve is slender and pointy, and negative kurtosis indicates the curve is fat and flat.
+- Computing the Skewness and Kurtosis of the column Count
+```
+flight_summary.select(skewness("count"), kurtosis("count")).show
+```
+#### variance(col), stddev(col)
+- Computing the Variance and Standard Deviation Using the variance and sttdev Functions  
+In statistics, variance and standard deviation are used to measure the dispersion, or the spread, of the data.
+```
+// use the two variations of variance and standard deviation
+flight_summary.select(variance("count"), var_pop("count"), stddev("count"), stddev_pop("count")).show
+```
 
 
 
