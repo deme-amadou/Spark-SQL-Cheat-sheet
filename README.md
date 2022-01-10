@@ -106,14 +106,12 @@ val movies6 = spark.read.option("inferSchema","true").schema(movieSchema2)
 - Reading a Parquet File in Spark
 ```
 Parquet is the default format, so don't need to specify the format when reading
-val movies9 = spark.read.load("<path>/book/chapter4/data/movies/movies.
-parquet")           
+val movies9 = spark.read.load("<path>/book/chapter4/data/movies/movies.parquet")           
 ```
 If we want to be more explicit, we can specify the path to the parquet
 function
 ```
-val movies10 = spark.read.parquet("<path>/book/chapter4/data/movies/movies.
-parquet")
+val movies10 = spark.read.parquet("<path>/book/chapter4/data/movies/movies.parquet")
 ```
 - Reading an ORC File in Spark
 ```
@@ -124,8 +122,7 @@ val movies11 = spark.read.orc("<path>/book/chapter4/data/movies/movies.orc")
 // First, connect MySQL ot Spark
 
 import java.sql.DriverManager
-val connectionURL = "jdbc:mysql://localhost:3306/<table>?user=<username>
-&password=<password>"
+val connectionURL = "jdbc:mysql://localhost:3306/<table>?user=<username>&password=<password>"
 val connection = DriverManager.getConnection(connectionURL)
 connection.isClosed()
 connection close()
@@ -134,8 +131,7 @@ connection close()
 //Reading Data from a Table in MySQL Server
 
 val mysqlURL= "jdbc:mysql://localhost:3306/sakila"
-val filmDF = spark.read.format("jdbc").option("driver", "com.mysql.jdbc.
-Driver")
+val filmDF = spark.read.format("jdbc").option("driver", "com.mysql.jdbc.Driver")
                                       .option("url", mysqlURL)
                                       .option("dbtable", "film")
                                       .option("user", "<username>")
@@ -180,8 +176,7 @@ or a subset of columns from a DataFrame. During the selection, each column can b
 movies.select("movie_title","produced_year").show(5)
 
 // using a column expression to transform year to decade
-movies.select('movie_title,('produced_year - ('produced_year % 10)).
-as("produced_decade")).show(5)
+movies.select('movie_title,('produced_year - ('produced_year % 10)).as("produced_decade")).show(5)
 ```
 ##### selectExpr(expressions)
 This transformation is a variant of the select transformation. The one big difference is that it accepts one or more SQL expressions, rather than columns. However, both are essentially performing the same projection task. SQL expressions are powerful and flexible constructs to allow you to express column transformation logic in a natural way, just like the way you think. You can express SQL expressions in a string format, and Spark will parse them into a logical tree so they will be evaluated in the right order.
@@ -215,10 +210,8 @@ movies.filter('produced_year >= 2000).filter(length('movie_title) < 5).show(5)
 These two transformations have identical behavior. However, dropDuplicates allows you to control which columns should be used in deduplication logic. If none is specified, the deduplication logic will use all the columns in the DataFrame.
 - Using distinct and dropDuplicates to Achieve the Same Goal
 ```
-movies.select("movie_title").distinct.selectExpr("count(movie_title) as
-movies").show
-movies.dropDuplicates("movie_title").selectExpr("count(movie_title) as
-movies").show
+movies.select("movie_title").distinct.selectExpr("count(movie_title) as movies").show
+movies.dropDuplicates("movie_title").selectExpr("count(movie_title) as movies").show
 ```
 ##### sort(columns), orderBy(columns)
 Both of these transformations have the same semantics. The orderBy transformation is more relational than the other one. By default, the sorting is in ascending order, and it is fairly easy to change it to descending. When specifying more than one column, it is possible to have a different order for each of the columns.
@@ -233,8 +226,31 @@ movieTitles.orderBy('title_length.desc).show(5)
 // sorting by two columns in different orders
 movieTitles.orderBy('title_length.desc, 'produced_year).show(5)
 ```
+##### limit(n)
+This transformation returns a new DataFrame by taking the first n rows. This transformation is commonly used after the sorting is done to figure out the top n or bottom n rows based on the sorting order.
+- Using the limit Transformation to Figure Out the Top Ten Actors with the Longest Names
+```
+// first create a DataFrame with their name and associated length
+val actorNameDF = movies.select("actor_name").distinct.selectExpr("*", "length(actor_name) as length")
+// order names by length and retrieve the top 10
+actorNameDF.orderBy('length.desc).limit(10).show
+```
+##### union(otherDataFrame)
+We learned earlier that DataFrames are immutable. So if there is a need to add more rows to an existing DataFrame, then the union transformation is useful for that purpose as well as for combining rows from two DataFrames. This transformation requires both DataFrames to have the same schema, meaning both column names and their order must exactly match.
+- Adding a Missing Actor to the movies DataFrame
+```
+// we want to add a missing actor to movie with title as "12"
+val shortNameMovieDF = movies.where('movie_title === "12")
 
+// create a DataFrame with one row
+import org.apache.spark.sql.Row
+val forgottenActor = Seq(Row("Brychta, Edita", "12", 2007L))
+val forgottenActorRDD = spark.sparkContext.parallelize(forgottenActor)
+val forgottenActorDF = spark.createDataFrame(forgottenActorRDD,shortNameMovieDF.schema)
 
+// now adding the missing actor
+val completeShortNameMovieDF = shortNameMovieDF.union(forgottenActorDF)
+```
 
 
 
