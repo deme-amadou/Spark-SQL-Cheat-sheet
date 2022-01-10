@@ -259,8 +259,7 @@ This transformation is used to add a new column to a DataFrame. It requires two 
 movies.withColumn("decade", ('produced_year - 'produced_year % 10)).show(5)
 
 // now replace the produced_year with new values
-movies.withColumn("produced_year", ('produced_year - 'produced_year % 10)).
-show(5)
+movies.withColumn("produced_year", ('produced_year - 'produced_year % 10)).show(5)
 ```
 ##### withColumnRenamed(existingColName, newColName)
 This transformation is strictly about renaming an existing column name in a DataFrame. Notice that if the provided existingColName doesn’t exist in the schema, Spark doesn’t throw an error, and it will silently do nothing.
@@ -313,6 +312,7 @@ badMoviesDF.na.drop(Array("actor_name")).show
 movies.describe("produced_year").show
 ```
 #### Working with Structured Actions
+![Structured Actions](StructuredActions.png)
 
 
 
