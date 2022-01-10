@@ -314,9 +314,29 @@ movies.describe("produced_year").show
 #### Working with Structured Actions
 ![Structured Actions](StructuredActions.png)
 
+## Datasets
+Consider the Dataset as a younger brother of the DataFrame; however, it is more about
+type safety and is object-oriented. A Dataset is a strongly typed, immutable collection
+of data. Similar to a DataFrame, the data in a Dataset is mapped to a defined schema.
+The Dataset APIs are good for production jobs that need to run on a regular basis and are written and maintained by data engineers. For most interactive and explorative analysis use cases, using the DataFrame APIs would be sufficient.
 
+### Creating Datasets
+There are a few ways to create a Dataset, but the first thing you need to do is to define a domain-specific object to represent each row. The first way is to transform a DataFrame to a Dataset using the as(Symbol) function of the DataFrame class. The second way is to use the SparkSession.createDataset() function to create a Dataset from a local collection objects. The third way is to use the toDS implicit conversion utility.
+- Different Ways of Creating Datasets
+```
+// define Movie case class
+case class Movie(actor_name:String, movie_title:String, produced_year:Long)
 
+// convert DataFrame to strongly typed Dataset
+val moviesDS = movies.as[Movie]
 
+// create a Dataset using SparkSession.createDataset() and the toDS implicit function
+val localMovies = Seq(Movie("John Doe", "Awesome Movie", 2018L),
+                                 Movie("Mary Jane", "Awesome Movie", 2018L))
+val localMoviesDS1 = spark.createDataset(localMovies)
+val localMoviesDS2 = localMovies.toDS()
+localMoviesDS1.show
+```
 
 
 
