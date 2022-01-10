@@ -368,9 +368,51 @@ Array[Movie] = Array(Movie(McClure, Marc (I),Coach Carter,2005), Movie(McClure, 
 Spark provides a few different ways to run SQL.
 - Spark SQL CLI (./bin/spark-sql)
 - JDBC/ODBC server
-- Programmatically in Spark applications
+- Programmatically in Spark applications  
+DataFrames and Datasets are essentially like tables in a database. Before you can issue SQL queries to manipulate them, you need to register them as temporary views.
+- Registering the movies DataFrame as a Temporary View and Inspecting the Spark Metadata Catalog
+```
+// display tables in the catalog, expecting an empty list
+spark.catalog.listTables.show
 
+// now register movies DataFrame as a temporary view
+movies.createOrReplaceTempView("movies")
 
+// should see the movies view in the catalog
+spark.catalog.listTables.show
+
+// show the list of columns of movies view in catalog
+spark.catalog.listColumns("movies").show
+
+// register movies as global temporary view called movies_g
+movies.createOrReplaceGlobalTempView("movies_g")
+```
+- Programmatically Executing SQL Statements in Spark
+```
+val infoDF = spark.sql("select current_date() as today , 1 + 100 as value")
+infoDF.show
+
+// select from a view
+spark.sql("select * from movies where actor_name like '%Jolie%' and
+produced_year > 2009").show
+
+// mixing SQL statement and DataFrame transformation
+spark.sql("select actor_name, count(*) as count from movies group by actor_name")
+         .where('count > 30)
+         .orderBy('count.desc)
+         .show
+
+// using a subquery to figure out the number movies were produced in each year.
+// leverage """ to format multi-line SQL statement
+spark.sql("""select produced_year, count(*) as count
+                   from (select distinct movie_title, produced_year from
+movies)
+                   group by produced_year""")
+         .orderBy('count.desc).show(5)      
+
+// select from a global view requires prefixing the view name with key word 'global_temp'
+spark.sql("select count(*) from global_temp.movies_g").show
+```
 
 
 
