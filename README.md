@@ -337,7 +337,38 @@ val localMoviesDS1 = spark.createDataset(localMovies)
 val localMoviesDS2 = localMovies.toDS()
 localMoviesDS1.show
 ```
+### Working with Datasets
+Now that you have a Dataset, you can manipulate it using the transformations and actions described earlier. Previously you referred to the columns in the DataFrame using one of the options described earlier. With a Dataset, each row is represented by a strongly typed object; therefore, you can just refer to the columns using the member variable names, which will give you type safety as well as compile-time validation.
+If there is a misspelling in the name, the compiler will flag them immediately during the
+development phase.
+- Manipulating a Dataset in a Type-Safe Manner
+```
+// filter movies that were produced in 2010 using
+moviesDS.filter(movie => movie.produced_year == 2010).show(5)
 
+// displaying the title of the first movie in the moviesDS
+moviesDS.first.movie_title
+
+// perform projection using map transformation
+val titleYearDS = moviesDS.map(m => ( m.movie_title, m.produced_year))
+
+// demonstrating a type-safe transformation that fails at compile time, performing subtraction on a column with string type
+// a problem is not detected for DataFrame until runtime
+movies.select('movie_title - 'movie_title)
+
+// a problem is detected at compile time
+moviesDS.map(m => m.movie_title - m.movie_title)
+error: value - is not a member of String
+
+// take action returns rows as Movie objects to the driver
+moviesDS.take(5)
+Array[Movie] = Array(Movie(McClure, Marc (I),Coach Carter,2005), Movie(McClure, Marc (I),Superman II,1980), Movie(McClure, Marc (I),Apollo 13,1995))
+```
+### Running SQL in Spark
+Spark provides a few different ways to run SQL.
+• Spark SQL CLI (./bin/spark-sql)
+• JDBC/ODBC server
+• Programmatically in Spark applications
 
 
 
