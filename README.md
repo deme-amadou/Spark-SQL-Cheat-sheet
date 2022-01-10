@@ -251,6 +251,68 @@ val forgottenActorDF = spark.createDataFrame(forgottenActorRDD,shortNameMovieDF.
 // now adding the missing actor
 val completeShortNameMovieDF = shortNameMovieDF.union(forgottenActorDF)
 ```
+##### withColumn(colName, column)
+This transformation is used to add a new column to a DataFrame. It requires two input parameters: a column name and a value in the form of a column expression. You can accomplish pretty much the same goal by using the selectExpr transformation. However, if the given column name matches one of the existing ones, then that column is replaced with the given column expression.
+- Adding a Column As Well As Replacing a Column Using the withColumn Transformation
+```
+// adding a new column based on a certain column expression
+movies.withColumn("decade", ('produced_year - 'produced_year % 10)).show(5)
+
+// now replace the produced_year with new values
+movies.withColumn("produced_year", ('produced_year - 'produced_year % 10)).
+show(5)
+```
+##### withColumnRenamed(existingColName, newColName)
+This transformation is strictly about renaming an existing column name in a DataFrame. Notice that if the provided existingColName doesn’t exist in the schema, Spark doesn’t throw an error, and it will silently do nothing.
+- Using the withColumnRenamed Transformation to Rename Some of the Column Names
+```
+movies.withColumnRenamed("actor_name", "actor")
+      .withColumnRenamed("movie_title", "title")
+      .withColumnRenamed("produced_year", "year").show(5)
+```
+##### drop(columnName1, columnName2)
+This transformation simply drops the specified columns from the DataFrame. You can specify one or more column names to drop, but only the ones that exist in the schema will be dropped and the ones that don’t will be silently ignored.
+```
+movies.drop("actor_name", "me").printSchema
+```
+##### sample(fraction), sample(fraction, seed), sample(fraction, seed, withReplacement)
+This transformation returns a randomly selected set of rows from the DataFrame. The number of the returned rows will be approximately equal to the specified fraction, which represents a percentage, and the value has to be between 0 and 1.
+- Different Ways of Using the sample Transformation
+```
+// sample with no replacement and a fraction
+movies.sample(false, 0.0003).show(3)
+
+// sample with replacement, a fraction and a seed
+movies.sample(true, 0.0003, 123456).show(3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
