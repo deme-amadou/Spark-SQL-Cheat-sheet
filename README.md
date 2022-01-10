@@ -168,7 +168,7 @@ kvDF.select('key, 'key > 1).show
 ```
 val movies = spark.read.parquet("<path>/chapter4/data/movies/movies.parquet")
 ```
-##### select(columns)
+#### select(columns)
 This transformation is commonly used to perform projection, meaning selecting all
 or a subset of columns from a DataFrame. During the selection, each column can be transformed via a column expression. There are two variations of this transformation. One takes the column as a string, and the other takes columns as the Column class. This transformation does not permit you to mix the column type when using one of these two variations.
 - Two Variations of the select Transformation
@@ -178,7 +178,7 @@ movies.select("movie_title","produced_year").show(5)
 // using a column expression to transform year to decade
 movies.select('movie_title,('produced_year - ('produced_year % 10)).as("produced_decade")).show(5)
 ```
-##### selectExpr(expressions)
+#### selectExpr(expressions)
 This transformation is a variant of the select transformation. The one big difference is that it accepts one or more SQL expressions, rather than columns. However, both are essentially performing the same projection task. SQL expressions are powerful and flexible constructs to allow you to express column transformation logic in a natural way, just like the way you think. You can express SQL expressions in a string format, and Spark will parse them into a logical tree so they will be evaluated in the right order.
 - Adding the decade Column to the movies DataFrame Using a SQL Expression
 ```
@@ -189,7 +189,7 @@ show(5)
 ```
 movies.selectExpr("count(distinct(movie_title)) as movies","count(distinct(actor_name)) as actors").show
 ```
-##### filler(condition), where(condition)
+#### filler(condition), where(condition)
 This transformation is a fairly straightforward one to understand. It is used to filter out the rows that don’t meet the given condition, in other words, when the condition evaluates to false. A different way of looking at the behavior of the filter transformation is that it returns only the rows that meet the specified condition. Both the filter and where transformations have the same behavior, so pick the one you are most comfortable with. The latter one is just a bit more relational than the former.
 - Filter Rows with Logical Comparison Functions in the Column Class
 ```
@@ -206,14 +206,14 @@ movies.filter('produced_year >= 2000 && length('movie_title) < 5).show(5)
 // the other way of accomplishing the same result is by calling the filter function two times
 movies.filter('produced_year >= 2000).filter(length('movie_title) < 5).show(5)
 ```
-##### distinct, dropDuplicates
+#### distinct, dropDuplicates
 These two transformations have identical behavior. However, dropDuplicates allows you to control which columns should be used in deduplication logic. If none is specified, the deduplication logic will use all the columns in the DataFrame.
 - Using distinct and dropDuplicates to Achieve the Same Goal
 ```
 movies.select("movie_title").distinct.selectExpr("count(movie_title) as movies").show
 movies.dropDuplicates("movie_title").selectExpr("count(movie_title) as movies").show
 ```
-##### sort(columns), orderBy(columns)
+#### sort(columns), orderBy(columns)
 Both of these transformations have the same semantics. The orderBy transformation is more relational than the other one. By default, the sorting is in ascending order, and it is fairly easy to change it to descending. When specifying more than one column, it is possible to have a different order for each of the columns.
 - Sorting the DataFrame in Ascending and Descending Order
 ```
@@ -226,7 +226,7 @@ movieTitles.orderBy('title_length.desc).show(5)
 // sorting by two columns in different orders
 movieTitles.orderBy('title_length.desc, 'produced_year).show(5)
 ```
-##### limit(n)
+#### limit(n)
 This transformation returns a new DataFrame by taking the first n rows. This transformation is commonly used after the sorting is done to figure out the top n or bottom n rows based on the sorting order.
 - Using the limit Transformation to Figure Out the Top Ten Actors with the Longest Names
 ```
@@ -235,7 +235,7 @@ val actorNameDF = movies.select("actor_name").distinct.selectExpr("*", "length(a
 // order names by length and retrieve the top 10
 actorNameDF.orderBy('length.desc).limit(10).show
 ```
-##### union(otherDataFrame)
+#### union(otherDataFrame)
 We learned earlier that DataFrames are immutable. So if there is a need to add more rows to an existing DataFrame, then the union transformation is useful for that purpose as well as for combining rows from two DataFrames. This transformation requires both DataFrames to have the same schema, meaning both column names and their order must exactly match.
 - Adding a Missing Actor to the movies DataFrame
 ```
@@ -251,7 +251,7 @@ val forgottenActorDF = spark.createDataFrame(forgottenActorRDD,shortNameMovieDF.
 // now adding the missing actor
 val completeShortNameMovieDF = shortNameMovieDF.union(forgottenActorDF)
 ```
-##### withColumn(colName, column)
+#### withColumn(colName, column)
 This transformation is used to add a new column to a DataFrame. It requires two input parameters: a column name and a value in the form of a column expression. You can accomplish pretty much the same goal by using the selectExpr transformation. However, if the given column name matches one of the existing ones, then that column is replaced with the given column expression.
 - Adding a Column As Well As Replacing a Column Using the withColumn Transformation
 ```
@@ -261,7 +261,7 @@ movies.withColumn("decade", ('produced_year - 'produced_year % 10)).show(5)
 // now replace the produced_year with new values
 movies.withColumn("produced_year", ('produced_year - 'produced_year % 10)).show(5)
 ```
-##### withColumnRenamed(existingColName, newColName)
+#### withColumnRenamed(existingColName, newColName)
 This transformation is strictly about renaming an existing column name in a DataFrame. Notice that if the provided existingColName doesn’t exist in the schema, Spark doesn’t throw an error, and it will silently do nothing.
 - Using the withColumnRenamed Transformation to Rename Some of the Column Names
 ```
@@ -269,12 +269,12 @@ movies.withColumnRenamed("actor_name", "actor")
       .withColumnRenamed("movie_title", "title")
       .withColumnRenamed("produced_year", "year").show(5)
 ```
-##### drop(columnName1, columnName2)
+#### drop(columnName1, columnName2)
 This transformation simply drops the specified columns from the DataFrame. You can specify one or more column names to drop, but only the ones that exist in the schema will be dropped and the ones that don’t will be silently ignored.
 ```
 movies.drop("actor_name", "me").printSchema
 ```
-##### sample(fraction), sample(fraction, seed), sample(fraction, seed, withReplacement)
+#### sample(fraction), sample(fraction, seed), sample(fraction, seed, withReplacement)
 This transformation returns a randomly selected set of rows from the DataFrame. The number of the returned rows will be approximately equal to the specified fraction, which represents a percentage, and the value has to be between 0 and 1.
 - Different Ways of Using the sample Transformation
 ```
@@ -284,7 +284,7 @@ movies.sample(false, 0.0003).show(3)
 // sample with replacement, a fraction and a seed
 movies.sample(true, 0.0003, 123456).show(3)
 ```
-##### randomSplit(weights)
+#### randomSplit(weights)
 This transformation is commonly used during the process of preparing the data to train machine learning models. Unlike the previous transformations, this one returns one or more DataFrames. The number of DataFrames it returns is based on the number of weights you specify. If the provided set of weights don’t add up to 1, then they will be
 normalized accordingly to add up to 1.
 - Using randomSplit to split the movies DataFrames into Three Parts
@@ -306,7 +306,7 @@ badMoviesDF.na.drop("all").show
 // drops rows when column actor_name has missing data
 badMoviesDF.na.drop(Array("actor_name")).show
 ```
-##### describe(columnNames)
+#### describe(columnNames)
 - Use the describe Transformation to Show Statistics for the produced_year Column
 ```
 movies.describe("produced_year").show
@@ -458,7 +458,7 @@ numDF.count
 ```
 ## Spark SQL (Advanced)
 
-### Aggragation Functions
+### Aggregation Functions
 In Spark, all aggregations are done via functions. The aggregation functions are designed to perform aggregation on a set of rows, whether that set of rows consists of all the rows or a subgroup of rows in a DataFrame.
 #### count(col)
 Counting is a commonly used aggregation to find out the number of items in a group.
@@ -519,10 +519,18 @@ In statistics, variance and standard deviation are used to measure the dispersio
 // use the two variations of variance and standard deviation
 flight_summary.select(variance("count"), var_pop("count"), stddev("count"), stddev_pop("count")).show
 ```
+### Aggregation with Grouping
 
-
-
-
+- Grouping by origin_airport and Performing a count Aggregation
+```
+flight_summary.groupBy("origin_airport").count().show(5, false)
+```
+- Grouping by origin_state and origin_city and Performing a Count Aggregation
+```
+flight_summary.groupBy('origin_state, 'origin_city).count
+                .where('origin_state === "CA").orderBy('count.desc).show(5)
+```                
+### Multiple Aggregations per Group
 
 
 
