@@ -369,6 +369,7 @@ Spark provides a few different ways to run SQL.
 - Spark SQL CLI (./bin/spark-sql)
 - JDBC/ODBC server
 - Programmatically in Spark applications  
+
 DataFrames and Datasets are essentially like tables in a database. Before you can issue SQL queries to manipulate them, you need to register them as temporary views.
 - Registering the movies DataFrame as a Temporary View and Inspecting the Spark Metadata Catalog
 ```
