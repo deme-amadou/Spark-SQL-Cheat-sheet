@@ -529,7 +529,7 @@ flight_summary.groupBy("origin_airport").count().show(5, false)
 ```
 flight_summary.groupBy('origin_state, 'origin_city).count
                 .where('origin_state === "CA").orderBy('count.desc).show(5)
-```                
+```
 ### Multiple Aggregations per Group
 
 
