@@ -406,7 +406,7 @@ spark.sql("select actor_name, count(*) as count from movies group by actor_name"
 // using a subquery to figure out the number movies were produced in each year.
 // leverage """ to format multi-line SQL statement
 spark.sql("""select produced_year, count(*) as count
-                   from (select distinct movie_title, produced_year from
+                   from (select distinct movie_title, produced_year from
 movies)
                    group by produced_year""")
          .orderBy('count.desc).show(5)      
@@ -414,6 +414,83 @@ movies)
 // select from a global view requires prefixing the view name with key word 'global_temp'
 spark.sql("select count(*) from global_temp.movies_g").show
 ```
+### Writing Data Out to Storage Systems
+In Spark SQL, the DataFrameWriter class is responsible for the logic and complexity of writing out the data in a DataFrame to an external storage system. An instance of the DataFrameWriter class is available to you as the write variable in the DataFrame class.
+- Common Interacting Pattern with DataFrameWriter
+```
+movies.write.format(...).mode(...).option(...).partitionBy(...).bucketBy(...)
+.sortBy(...).save(path)
+```
+- Using DataFrameWriter to Write Data to File-Based Sources
+```
+// write data out as CVS format, but using a '#' as delimiter
+movies.write.format("csv").option("sep", "#").save("/tmp/output/csv")
+
+// write data out using overwrite save mode
+movies.write.format("csv").mode("overwrite").option("sep", "#").save("/tmp/output/csv")
+```
+The number of files written out to the output directory corresponds to the number of partitions a DataFrame has.
+- Displaying the Number of Partitions a DataFrame Has
+```
+movies.rdd.getNumPartitions
+```
+In some cases, the content of a DataFrame is not large, and there is a need to write to a single file. A small trick to achieve this goal is to reduce the number of partitions in your DataFrame to one and then write it out.
+- Reducing the Number of Partitions in a DataFrame to 1
+```
+val singlePartitionDF = movies.coalesce(1)
+```
+- Writing the movies DataFrame Using the Parquet Format and Partition by the produced_year Column
+```
+movies.write.partitionBy("produced_year").save("/tmp/output/movies")
+// the /tmp/output/movies directory will contain the following subdirectories 
+produced_year=1961 to produced_year=2012
+```
+### DataFrame Persistence
+- Persisting a DataFrame with a Human-Readable Name
+```
+val numDF = spark.range(1000).toDF("id")
+// register as a view
+numDF.createOrReplaceTempView("num_df")
+// use Spark catalog to cache the numDF using name "num_df"
+spark.catalog.cacheTable("num_df")
+// force the persistence to happen by taking the count action
+numDF.count
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
