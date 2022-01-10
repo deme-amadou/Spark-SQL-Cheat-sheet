@@ -531,11 +531,24 @@ flight_summary.groupBy('origin_state, 'origin_city).count
                 .where('origin_state === "CA").orderBy('count.desc).show(5)
 ```
 ### Multiple Aggregations per Group
-
-
-
-
-
+- Multiple Aggregations After Grouping by origin_airport
+```
+import org.apache.spark.sql.functions._
+flight_summary.groupBy("origin_airport")
+                        .agg(count("count").as("count"),
+                             min("count"), max("count"),
+                             sum("count")).show(5)
+```
+- Specifying Multiple Aggregations Using a Key-Value Map
+```
+flight_summary.groupBy("origin_airport")
+                        .agg(
+                                 "count" -> "count"
+                                 "count" -> "min"
+                                 "count" -> "max"
+                                 "count" -> "sum"
+                       .show(5)
+```
 
 
 
